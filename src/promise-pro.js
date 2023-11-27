@@ -43,6 +43,10 @@ export class PromisePro {
     return this.promise.catch(onRejected);
   }
 
+  finally(onFinally) {
+    return this.promise.finally(onFinally);
+  }
+
   abort(reason) {
     if (!this.isPending) return this;
 
