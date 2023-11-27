@@ -5,7 +5,9 @@ export const STATUS_FULFILLED = 1;
 export const STATUS_REJECTED = 2;
 
 export class PromisePro {
-  constructor(executor, abortController = new AbortController()) {
+  constructor(executor, options = {}) {
+    const abortController = options.abortController || new AbortController();
+
     this.isPromisePro = true;
     this.status = STATUS_PENDING;
     this.abortController = abortController;
@@ -29,6 +31,8 @@ export class PromisePro {
       abortController.signal.addEventListener(EVENT_ABORT, this.abortFunc);
       return executor(this.resolveFunc, this.rejectFunc, { signal: abortController.signal });
     });
+
+    if (options.timeout > 0) this.timeout(options.timeout);
   }
 
   get isPending() {
