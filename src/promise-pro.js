@@ -27,7 +27,7 @@ export class PromisePro {
       }
 
       abortController.signal.addEventListener(EVENT_ABORT, this.abortFunc);
-      return executor(this.resolveFunc, this.rejectFunc, abortController.signal);
+      return executor(this.resolveFunc, this.rejectFunc, { signal: abortController.signal });
     });
   }
 

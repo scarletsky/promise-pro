@@ -11,8 +11,9 @@ test('PromisePro#constructor', async (t) => {
     t.equal(err , 321, 'executor `reject` should return value.');
   }
 
-  await new PromisePro((resolve, _, signal) => {
-    t.ok(signal, 'executor should have `signal` parameter.');
+  await new PromisePro((resolve, _, options) => {
+    t.ok(options, 'executor should have `options` parameter.');
+    t.ok(options.signal, 'executor should have `options.signal` paramter.');
     resolve();
   });
 
