@@ -5,12 +5,12 @@ export class PromisePro {
   static STATUS_FULFILLED = 1;
   static STATUS_REJECTED = 2;
 
-  static resolve(v) {
-    return new PromisePro((resolve, _) => resolve(v));
+  static resolve(v, options = {}) {
+    return new PromisePro((resolve, _) => resolve(v), options);
   }
 
-  static reject(v) {
-    return new PromisePro((_, reject) => reject(v));
+  static reject(v, options = {}) {
+    return new PromisePro((_, reject) => reject(v), options);
   }
 
   static all(iterable, options = {}) {
@@ -35,16 +35,18 @@ export class PromisePro {
     this.promise = new Promise((resolve, reject) => {
       this.resolveFunc = (v) => {
         this.status = PromisePro.STATUS_FULFILLED;
+        this.clean();
         return resolve(v);
       };
 
       this.rejectFunc = (v) => {
         this.status = PromisePro.STATUS_REJECTED;
+        this.clean();
         return reject(v);
       };
 
       this.abortFunc = (v) => {
-        abortController.signal.removeEventListener(PromisePro.EVENT_ABORT, this.abortFunc);
+        this._clearAbort();
         return this.rejectFunc(v);
       }
 
@@ -99,7 +101,10 @@ export class PromisePro {
   }
 
   _clearAbort() {
-
+    if (this.abortFunc) {
+      this.abortController.signal.removeEventListener(PromisePro.EVENT_ABORT, this.abortFunc);
+      this.abortFunc = null;
+    }
   }
 
   _clearTimeout() {
