@@ -5,6 +5,26 @@ export const STATUS_FULFILLED = 1;
 export const STATUS_REJECTED = 2;
 
 export class PromisePro {
+  static resolve(v) {
+    return new PromisePro((resolve, _) => resolve(v));
+  }
+
+  static reject(v) {
+    return new PromisePro((_, reject) => reject(v));
+  }
+
+  static all(iterable, options = {}) {
+    return new PromisePro((resolve, reject) => {
+      Promise.all(iterable).then(resolve).catch(reject);
+    }, options);
+  }
+
+  static allSettled(iterable, options = {}) {
+    return new PromisePro((resolve, reject) => {
+      return Promise.allSettled(iterable).then(resolve).catch(reject);
+    }, options);
+  }
+
   constructor(executor, options = {}) {
     const abortController = options.abortController || new AbortController();
 
@@ -40,15 +60,18 @@ export class PromisePro {
   }
 
   then(onFulfilled, onRejected) {
-    return this.promise.then(onFulfilled, onRejected);
+    this.promise.then(onFulfilled, onRejected);
+    return this;
   }
 
   catch(onRejected) {
-    return this.promise.catch(onRejected);
+    this.promise.catch(onRejected);
+    return this;
   }
 
   finally(onFinally) {
-    return this.promise.finally(onFinally);
+    this.promise.finally(onFinally);
+    return this;
   }
 
   abort(reason) {
