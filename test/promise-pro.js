@@ -1,10 +1,5 @@
 import test from 'tape';
-import {
-  PromisePro,
-  STATUS_PENDING,
-  STATUS_FULFILLED,
-  STATUS_REJECTED,
-} from '../src/promise-pro.js';
+import { PromisePro } from '../src/promise-pro.js';
 
 test('PromisePro#constructor', async (t) => {
 
@@ -31,7 +26,7 @@ test('PromisePro#constructor', async (t) => {
 
   t.test('should have `status` field', async t => {
     const p = new PromisePro(resolve => setTimeout(resolve, 0));
-    t.equal(p.status, STATUS_PENDING, 'default `status` should be `STATUS_PENDING`');
+    t.equal(p.status, PromisePro.STATUS_PENDING, 'default `status` should be `STATUS_PENDING`');
   });
 
   t.end();
@@ -135,9 +130,9 @@ test('PromisePro.all', async t => {
     try {
       await p;
     } catch (e) {
-      t.equal(p1.status, STATUS_REJECTED);
-      t.equal(p2.status, STATUS_REJECTED);
-      t.equal(p.status, STATUS_REJECTED);
+      t.equal(p1.status, PromisePro.STATUS_REJECTED);
+      t.equal(p2.status, PromisePro.STATUS_REJECTED);
+      t.equal(p.status, PromisePro.STATUS_REJECTED);
     }
   });
 });
@@ -165,9 +160,9 @@ test('PromisePro#allSettled', async t => {
     try {
       await p;
     } catch (e) {
-      t.equal(p1.status, STATUS_REJECTED);
-      t.equal(p2.status, STATUS_REJECTED);
-      t.equal(p.status, STATUS_REJECTED);
+      t.equal(p1.status, PromisePro.STATUS_REJECTED);
+      t.equal(p2.status, PromisePro.STATUS_REJECTED);
+      t.equal(p.status, PromisePro.STATUS_REJECTED);
     }
   });
 
