@@ -5,13 +5,18 @@
   "type": "module",
   "main": "src/index.js",
   "scripts": {
-    "test": "tape 'test/**.js'"
+    "test": "tape 'test/**.js' | tap-spec"
   },
-  "keywords": ["promise", "pro", "abort"],
+  "keywords": [
+    "promise",
+    "pro",
+    "abort"
+  ],
   "author": "scarletsky",
   "homepage": "https://github.com/scarletsky/promise-pro",
   "license": "ISC",
   "devDependencies": {
+    "tap-spec": "^5.0.0",
     "tape": "^5.7.2"
   }
 }
