@@ -58,7 +58,7 @@ export class PromisePro {
   }
 
   get isPending() {
-    return this.status === 0;
+    return this.status === PromisePro.STATUS_PENDING;
   }
 
   then(onFulfilled, onRejected) {
