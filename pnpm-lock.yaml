@@ -1,5 +1,10 @@
 lockfileVersion: '6.0'
 
+dependencies:
+  eventemitter3:
+    specifier: ^5.0.1
+    version: 5.0.1
+
 devDependencies:
   nodemon:
     specifier: ^3.0.1
@@ -303,6 +308,10 @@ packages:
     resolution: {integrity: sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=}
     engines: {node: '>=0.8.0'}
     dev: true
+
+  /eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
+    dev: false
 
   /figures@1.7.0:
     resolution: {integrity: sha1-y+Hjr/zxzUS4DK3+0o3Hk6lwHS4=}
