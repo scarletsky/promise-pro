@@ -26,12 +26,16 @@ export class PromisePro {
   }
 
   constructor(executor, options = {}) {
-    const abortController = options.abortController || new AbortController();
+    if (!options.abortController) {
+      options.abortController = new AbortController();
+    }
 
     this.isPromisePro = true;
-    this.status = PromisePro.STATUS_PENDING;
-    this.abortController = abortController;
+    this.options = options;
+    this.abortController = options.abortController;
     this.timeoutFuncId = null;
+
+    this.status = PromisePro.STATUS_PENDING;
     this.promise = new Promise((resolve, reject) => {
       this.resolveFunc = (v) => {
         this.status = PromisePro.STATUS_FULFILLED;
@@ -50,8 +54,8 @@ export class PromisePro {
         return this.rejectFunc(v);
       }
 
-      abortController.signal.addEventListener(PromisePro.EVENT_ABORT, this.abortFunc);
-      return executor(this.resolveFunc, this.rejectFunc, { signal: abortController.signal });
+      this.abortController.signal.addEventListener(PromisePro.EVENT_ABORT, this.abortFunc);
+      return executor(this.resolveFunc, this.rejectFunc, { signal: this.abortController.signal });
     });
 
     if (options.timeout > 0) this.timeout(options.timeout);
