@@ -39,20 +39,19 @@ export class PromisePro {
     this.promise = new Promise((resolve, reject) => {
       this.resolveFunc = (v) => {
         this.status = PromisePro.STATUS_FULFILLED;
-        this.clean();
-        return resolve(v);
+        resolve(v);
+
+        this._clean();
       };
 
       this.rejectFunc = (v) => {
         this.status = PromisePro.STATUS_REJECTED;
-        this.clean();
-        return reject(v);
+        reject(v);
+
+        this._clean();
       };
 
-      this.abortFunc = (v) => {
-        this._clearAbort();
-        return this.rejectFunc(v);
-      }
+      this.abortFunc = (v) => this.rejectFunc(v);
 
       this.abortController.signal.addEventListener(PromisePro.EVENT_ABORT, this.abortFunc);
       return executor(this.resolveFunc, this.rejectFunc, { signal: this.abortController.signal });
@@ -91,7 +90,7 @@ export class PromisePro {
   }
 
   timeout(ms) {
-    if (!this.isPending) return this;;
+    if (!this.isPending) return this;
 
     this._clearTimeout();
     this.timeoutFuncId = setTimeout(() => this.abort(PromisePro.EVENT_TIMEOUT), ms);
@@ -99,9 +98,11 @@ export class PromisePro {
     return this;
   }
 
-  clean() {
+  _clean() {
     this._clearAbort();
     this._clearTimeout();
+    this.resolveFunc = null;
+    this.rejectFunc = null;
   }
 
   _clearAbort() {
