@@ -1,4 +1,5 @@
 export class PromisePro {
+  static ID_COUNTER = 0;
   static EVENT_ABORT = 'abort';
   static EVENT_TIMEOUT = 'timeout';
   static STATUS_PENDING = 0;
@@ -30,34 +31,42 @@ export class PromisePro {
       options.abortController = new AbortController();
     }
 
+    this.id = PromisePro.ID_COUNTER++;
+
     this.isPromisePro = true;
     this.options = options;
     this.abortController = options.abortController;
     this.timeoutFuncId = null;
 
     this.status = PromisePro.STATUS_PENDING;
+
+    if (options.timeout > 0) this.timeout(options.timeout);
+
     this.promise = new Promise((resolve, reject) => {
       this.resolveFunc = (v) => {
-        this.status = PromisePro.STATUS_FULFILLED;
-        resolve(v);
-
-        this._clean();
+        if (this.isPending) {
+          this.status = PromisePro.STATUS_FULFILLED;
+          this._clean();
+          resolve(v);
+        }
       };
 
       this.rejectFunc = (v) => {
-        this.status = PromisePro.STATUS_REJECTED;
-        reject(v);
-
-        this._clean();
+        if (this.isPending) {
+          this.status = PromisePro.STATUS_REJECTED;
+          this._clean();
+          reject(v);
+        }
       };
 
-      this.abortFunc = (v) => this.rejectFunc(v);
+      if (this.abortController.signal.aborted) {
+        return this.rejectFunc(this.abortController.signal.reason);
+      }
 
+      this.abortFunc = (v) => this.rejectFunc(v);
       this.abortController.signal.addEventListener(PromisePro.EVENT_ABORT, this.abortFunc);
       return executor(this.resolveFunc, this.rejectFunc, { signal: this.abortController.signal });
     });
-
-    if (options.timeout > 0) this.timeout(options.timeout);
   }
 
   get isPending() {
