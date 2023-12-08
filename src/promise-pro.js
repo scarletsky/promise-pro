@@ -74,18 +74,59 @@ export class PromisePro {
   }
 
   then(onFulfilled, onRejected) {
-    this.promise.then(onFulfilled, onRejected);
-    return this;
+    return new PromisePro((resolve, reject) => {
+      this.promise.then(
+        value => {
+          if (onFulfilled) {
+            try {
+              resolve(onFulfilled(value));
+            } catch(error) {
+              reject(error);
+            }
+          } else {
+            resolve(value);
+          }
+        },
+        reason => {
+          if (onRejected) {
+            try {
+              resolve(onRejected(reason));
+            } catch (error) {
+              reject(error);
+            }
+          } else {
+            reject(reason);
+          }
+        }
+      );
+    });
   }
 
   catch(onRejected) {
-    this.promise.catch(onRejected);
-    return this;
+    return new PromisePro((resolve, reject) => {
+      this.promise.catch(
+        reason => {
+          if (onRejected) {
+            try {
+              resolve(onRejected(reason));
+            } catch (error) {
+              reject(error);
+            }
+          } else {
+            reject(reason);
+          }
+        }
+      )
+    });
   }
 
   finally(onFinally) {
-    this.promise.finally(onFinally);
-    return this;
+    return new PromisePro((resolve, reject) => {
+      this.promise.finally(() => {
+        if (onFinally) onFinally();
+        this.promise.then(resolve, reject);
+      });
+    });
   }
 
   abort(reason) {
