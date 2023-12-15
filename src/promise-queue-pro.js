@@ -21,6 +21,10 @@ export class PromiseQueuePro extends EventEmitter {
     this.timeout = (options.timeout !== undefined) ? options.timeout : -1;
     this.waitingTasks = [];
     this.activeTasks = new Map();
+    this.stats = {
+      done: 0,
+      total: 0,
+    };
   }
 
   get isIdle() {
@@ -64,6 +68,7 @@ export class PromiseQueuePro extends EventEmitter {
     };
     const index = this.getIndex(task);
     this.waitingTasks.splice(index, 0, task);
+    this.stats.total++;
     this.fireEvent(PromiseQueuePro.EVENT_ADD);
 
     return this.dequeue();
@@ -74,6 +79,7 @@ export class PromiseQueuePro extends EventEmitter {
 
     if (index > -1) {
       this.waitingTasks.splice(index, 1);
+      this.stats.total--;
       this.fireEvent(PromiseQueuePro.EVENT_REMOVE);
     }
 
@@ -101,13 +107,15 @@ export class PromiseQueuePro extends EventEmitter {
       promise
         .then((v) => {
           this.activeTasks.delete(promise.id);
-          this.fireEvent(PromiseQueuePro.STATUS_PROGRESS);
+          this.stats.done++;
+          this.fireEvent(PromiseQueuePro.STATUS_PROGRESS, this.stats.done / this.stats.total);
           this.dequeue();
           return v;
         })
         .catch((err) => {
           this.activeTasks.delete(promise.id);
-          this.fireEvent(PromiseQueuePro.STATUS_PROGRESS);
+          this.stats.done++;
+          this.fireEvent(PromiseQueuePro.STATUS_PROGRESS, this.stats.done / this.stats.total);
           this.dequeue();
           return err;
         });
