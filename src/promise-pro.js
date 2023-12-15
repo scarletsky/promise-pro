@@ -31,7 +31,7 @@ export class PromisePro {
       options.abortController = new AbortController();
     }
 
-    this.id = PromisePro.ID_COUNTER++;
+    this.id = ++PromisePro.ID_COUNTER;
 
     this.isPromisePro = true;
     this.options = options;
@@ -46,7 +46,7 @@ export class PromisePro {
       this.resolveFunc = (v) => {
         if (this.isPending) {
           this.status = PromisePro.STATUS_FULFILLED;
-          this._clean();
+          this.clear();
           resolve(v);
         }
       };
@@ -54,7 +54,7 @@ export class PromisePro {
       this.rejectFunc = (v) => {
         if (this.isPending) {
           this.status = PromisePro.STATUS_REJECTED;
-          this._clean();
+          this.clear();
           reject(v);
         }
       };
@@ -155,7 +155,7 @@ export class PromisePro {
     return this;
   }
 
-  _clean() {
+  clear() {
     this._clearAbort();
     this._clearTimeout();
     this.resolveFunc = null;
