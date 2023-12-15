@@ -122,9 +122,16 @@ export class PromisePro {
 
   finally(onFinally) {
     return new PromisePro((resolve, reject) => {
-      this.promise.finally(() => {
-        if (onFinally) onFinally();
-        this.promise.then(resolve, reject);
+      this.promise.finally((v) => {
+        if (onFinally) {
+          try {
+            resolve(onFinally);
+          } catch (error) {
+            reject(error);
+          }
+        } else {
+          resolve(v);
+        }
       });
     });
   }
