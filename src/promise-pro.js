@@ -129,7 +129,7 @@ export class PromisePro {
       this.promise.finally((v) => {
         if (onFinally) {
           try {
-            resolve(onFinally);
+            resolve(onFinally(v));
           } catch (error) {
             reject(error);
           }
