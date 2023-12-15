@@ -1,3 +1,5 @@
+import { assign } from './utils.js';
+
 export class PromisePro {
   static ID_COUNTER = 0;
   static EVENT_ABORT = 'abort';
@@ -7,6 +9,10 @@ export class PromisePro {
   static STATUS_REJECTED = 2;
   static FUNC_RESOLVE = 0;
   static FUNC_REJECT = 1;
+  static DEFAULT_OPTIONS = {
+    timeout: -1,
+    abortFunc: PromisePro.FUNC_REJECT,
+  };
 
   static resolve(v, options = {}) {
     return new PromisePro((resolve, _) => resolve(v), options);
@@ -29,13 +35,14 @@ export class PromisePro {
   }
 
   constructor(executor, options = {}) {
+    options = assign({}, PromisePro.DEFAULT_OPTIONS, options);
+
     if (!options.abortController) {
       options.abortController = new AbortController();
     }
 
     this.id = ++PromisePro.ID_COUNTER;
     this.isPromisePro = true;
-    this.options = options;
     this.abortController = options.abortController;
     this.status = PromisePro.STATUS_PENDING;
 
