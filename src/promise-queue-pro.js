@@ -117,7 +117,7 @@ export class PromiseQueuePro extends EventEmitter {
   }
 
   start() {
-    if (!this.isPaused) return;
+    if (!this.isPaused) return this;
     return this.dequeue();
   }
 

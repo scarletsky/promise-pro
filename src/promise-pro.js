@@ -5,6 +5,8 @@ export class PromisePro {
   static STATUS_PENDING = 0;
   static STATUS_FULFILLED = 1;
   static STATUS_REJECTED = 2;
+  static FUNC_RESOLVE = 0;
+  static FUNC_REJECT = 1;
 
   static resolve(v, options = {}) {
     return new PromisePro((resolve, _) => resolve(v), options);
@@ -32,14 +34,12 @@ export class PromisePro {
     }
 
     this.id = ++PromisePro.ID_COUNTER;
-
     this.isPromisePro = true;
     this.options = options;
     this.abortController = options.abortController;
-    this.timeoutFuncId = null;
-
     this.status = PromisePro.STATUS_PENDING;
 
+    this.timeoutFuncId = null;
     if (options.timeout > 0) this.timeout(options.timeout);
 
     this.promise = new Promise((resolve, reject) => {
@@ -59,11 +59,15 @@ export class PromisePro {
         }
       };
 
+      const abortFunc = (options.abortFunc === PromisePro.FUNC_RESOLVE)
+            ? this.resolveFunc
+            : this.rejectFunc;
+
       if (this.abortController.signal.aborted) {
-        return this.rejectFunc(this.abortController.signal.reason);
+        return abortFunc(this.abortController.signal.reason);
       }
 
-      this.abortFunc = (v) => this.rejectFunc(v);
+      this.abortFunc = abortFunc;
       this.abortController.signal.addEventListener(PromisePro.EVENT_ABORT, this.abortFunc);
       return executor(this.resolveFunc, this.rejectFunc, { signal: this.abortController.signal });
     });
