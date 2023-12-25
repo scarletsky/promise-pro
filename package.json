@@ -6,7 +6,11 @@
   "main": "src/index.js",
   "scripts": {
     "test": "tape 'test/**.js' | tap-spec",
-    "test:watch": "nodemon --exec pnpm test"
+    "test:watch": "nodemon --exec pnpm test",
+    "test:p": "tape 'test/promise-pro.js' | tap-spec",
+    "test:p:watch": "nodemon --exec pnpm test:p",
+    "test:q": "tape 'test/promise-queue-pro.js' | tap-spec",
+    "test:q:watch": "nodemon --exec pnpm test:q"
   },
   "keywords": [
     "promise",
