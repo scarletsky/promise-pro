@@ -17,7 +17,7 @@ export class PromiseQueuePro extends EventEmitter {
     super();
     this.isPromiseQueuePro = true;
     this.status = PromiseQueuePro.STATUS_PAUSED;
-    this.concurrency = (options.concurrency !== undefined) ? options.concurrency : 32;
+    this.concurrency = (options.concurrency !== undefined) ? options.concurrency : Infinity;
     this.timeout = (options.timeout !== undefined) ? options.timeout : -1;
     this.waitingTasks = [];
     this.activeTasks = new Map();
@@ -25,6 +25,8 @@ export class PromiseQueuePro extends EventEmitter {
       done: 0,
       total: 0,
     };
+
+    if (options.autoStart) this.start();
   }
 
   get isIdle() {
@@ -69,7 +71,7 @@ export class PromiseQueuePro extends EventEmitter {
     const index = this.getIndex(task);
     this.waitingTasks.splice(index, 0, task);
     this.stats.total++;
-    this.fireEvent(PromiseQueuePro.EVENT_ADD);
+    this.emit(PromiseQueuePro.EVENT_ADD);
 
     return this.dequeue();
   }
@@ -80,7 +82,7 @@ export class PromiseQueuePro extends EventEmitter {
     if (index > -1) {
       this.waitingTasks.splice(index, 1);
       this.stats.total--;
-      this.fireEvent(PromiseQueuePro.EVENT_REMOVE);
+      this.emit(PromiseQueuePro.EVENT_REMOVE);
     }
 
     return this.dequeue();
@@ -91,11 +93,14 @@ export class PromiseQueuePro extends EventEmitter {
     if (this.activeTasks.size === this.concurrency) return this;
 
     if (this.waitingTasks.length === 0) {
+
       if (this.activeTasks.size === 0) {
         this.status = PromiseQueuePro.STATUS_IDLE;
-        this.fireEvent(PromiseQueuePro.EVENT_IDLE);
+        this.emit(PromiseQueuePro.EVENT_IDLE);
         return this;
       }
+
+      return this;
     }
 
     const handler = this.waitingTasks.shift();
@@ -108,14 +113,14 @@ export class PromiseQueuePro extends EventEmitter {
         .then((v) => {
           this.activeTasks.delete(promise.id);
           this.stats.done++;
-          this.fireEvent(PromiseQueuePro.STATUS_PROGRESS, this.stats.done / this.stats.total);
+          this.emit(PromiseQueuePro.STATUS_PROGRESS, this.stats.done / this.stats.total);
           this.dequeue();
           return v;
         })
         .catch((err) => {
           this.activeTasks.delete(promise.id);
           this.stats.done++;
-          this.fireEvent(PromiseQueuePro.STATUS_PROGRESS, this.stats.done / this.stats.total);
+          this.emit(PromiseQueuePro.STATUS_PROGRESS, this.stats.done / this.stats.total);
           this.dequeue();
           return err;
         });
@@ -126,6 +131,9 @@ export class PromiseQueuePro extends EventEmitter {
 
   start() {
     if (!this.isPaused) return this;
+
+    this.status = PromiseQueuePro.STATUS_ACTIVE;
+
     return this.dequeue();
   }
 
@@ -152,3 +160,5 @@ export class PromiseQueuePro extends EventEmitter {
     return this;
   }
 }
+
+export const PromiseQueue = PromiseQueuePro;
