@@ -15,3 +15,11 @@ export const assign = Object.assign ? Object.assign : function () {
 
   return target;
 }
+
+export function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function isFunction(value) {
+  return typeof value === 'function';
+}
