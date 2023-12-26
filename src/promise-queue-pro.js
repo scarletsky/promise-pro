@@ -1,5 +1,6 @@
 import EventEmitter from 'eventemitter3';
 import { PromisePro } from './promise-pro.js';
+import { isFunction } from './utils.js';
 
 export class PromiseQueuePro extends EventEmitter {
   static STATUS_IDLE = 0;
@@ -145,12 +146,12 @@ export class PromiseQueuePro extends EventEmitter {
 
   abort() {
     this.pause();
-    this.activeTasks.values().forEach(promise => promise.abort());
+    this.activeTasks.values().forEach(promise => isFunction(promise.abort) && promise.abort());
     return this;
   }
 
   timeout(ms) {
-    this.activeTasks.values().forEach(promise => promise.timeout(ms));
+    this.activeTasks.values().forEach(promise => isFunction(promise.timeout) && promise.timeout(ms));
     return this;
   }
 
