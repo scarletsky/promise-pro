@@ -20,6 +20,18 @@ export function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+export function isNull(value) {
+  return (value === null);
+}
+
+export function isUndefined(value) {
+  return (value === undefined);
+}
+
+export function isNil(value) {
+  return isNull(value) || isUndefined(value);
+}
+
 export function isFunction(value) {
   return typeof value === 'function';
 }
