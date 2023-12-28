@@ -1,6 +1,6 @@
 import EventEmitter from 'eventemitter3';
 import { PromisePro } from './promise-pro.js';
-import { isFunction } from './utils.js';
+import { isNil, isFunction } from './utils.js';
 
 export class PromiseQueuePro extends EventEmitter {
   static STATUS_IDLE = 0;
@@ -19,7 +19,8 @@ export class PromiseQueuePro extends EventEmitter {
     this.isPromiseQueuePro = true;
     this.status = PromiseQueuePro.STATUS_PAUSED;
     this.concurrency = (options.concurrency !== undefined) ? options.concurrency : Infinity;
-    this.timeout = (options.timeout !== undefined) ? options.timeout : -1;
+    this.timeout = !isNil(options.timeout) ? options.timeout : -1;
+    this.autoDequeue = !isNil(options.autoDequeue) ? options.autoDequeue : true;
     this.waitingTasks = [];
     this.activeTasks = new Map();
     this.stats = {
@@ -74,7 +75,9 @@ export class PromiseQueuePro extends EventEmitter {
     this.stats.total++;
     this.emit(PromiseQueuePro.EVENT_ADD);
 
-    return this.dequeue();
+    if (this.autoDequeue) this.dequeue();
+
+    return this;
   }
 
   remove(fn) {
@@ -86,7 +89,9 @@ export class PromiseQueuePro extends EventEmitter {
       this.emit(PromiseQueuePro.EVENT_REMOVE);
     }
 
-    return this.dequeue();
+    if (this.autoDequeue) this.dequeue();
+
+    return this;
   }
 
   dequeue() {
@@ -115,19 +120,23 @@ export class PromiseQueuePro extends EventEmitter {
           this.activeTasks.delete(promise.id);
           this.stats.done++;
           this.emit(PromiseQueuePro.STATUS_PROGRESS, this.stats.done / this.stats.total);
-          this.dequeue();
+
+          if (this.autoDequeue) this.dequeue();
+
           return v;
         })
         .catch((err) => {
           this.activeTasks.delete(promise.id);
           this.stats.done++;
           this.emit(PromiseQueuePro.STATUS_PROGRESS, this.stats.done / this.stats.total);
-          this.dequeue();
+
+          if (this.autoDequeue) this.dequeue();
+
           return err;
         });
     }
 
-    this.dequeue();
+    if (this.autoDequeue) this.dequeue();
   }
 
   start() {
@@ -135,7 +144,9 @@ export class PromiseQueuePro extends EventEmitter {
 
     this.status = PromiseQueuePro.STATUS_ACTIVE;
 
-    return this.dequeue();
+    if (this.autoDequeue) this.dequeue();
+
+    return this;
   }
 
   pause() {
